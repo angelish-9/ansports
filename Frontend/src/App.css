@@ -1,0 +1,8 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+button {
+  transition: background-color 0.3s ease;
+}

@@ -1,0 +1,77 @@
+/* AddProduct.css */
+
+.add-product-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.add-product-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.add-product-container .message {
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #f0f8ff;
+    border-radius: 4px;
+    color: #3178c6;
+}
+
+.add-product-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.add-product-container input,
+.add-product-container textarea,
+.add-product-container select {
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.add-product-container textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+.add-product-container button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-product-container button:hover {
+    background-color: #0056b3;
+}
+
+.add-product-container button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.add-product-container input[type="file"] {
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.add-product-container label {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #333;
+}

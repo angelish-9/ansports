@@ -1,0 +1,6 @@
+Remove Admin login function from the UserController, and used the login function for the admin as well.
+
+Admin can post product
+Any user can view products
+Todo:
+  ☐ Item
