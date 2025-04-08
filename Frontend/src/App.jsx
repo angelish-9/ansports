@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
-import CategoryPage from "./components/CategoryCard.jsx";
+// import CategoryPage from "./components/CategoryCard.jsx";
 
 // Lazy-loaded pages
 const Home = lazy(() => import("./pages/Home.jsx"));
@@ -26,6 +26,8 @@ const ProductList = lazy(() => import("./components/product/ProductList.jsx"));
 
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 const AddProduct = lazy(() => import("./pages/admin/AddProduct.jsx"));
+const CategoryProducts = lazy(() => import("./components/product/CategoryProducts.jsx"));
+
 
 function App() {
   return (
@@ -35,27 +37,29 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/category/:categoryName" element={<CategoryPage />} />
+          {/* <Route path="/orders" element={<Orders />} />
           <Route path="/rentals" element={<Rentals />} />
           <Route path="/customization" element={<Customization />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/football" element={<FootballProduct />} />
+          <Route path="/cart" element={<Cart />} /> */}
+          {/* <Route path="/profile" element={<Profile />} /> */}
+          {/* <Route path="/about" element={<About />} /> */}
+          {/* <Route path="/contact" element={<Contact />} /> */}
+          {/* <Route path="/football" element={<FootballProduct />} />
           <Route path="/basketball" element={<BasketballProduct />} />
           <Route path="/cricket" element={<CricketProduct />} />
           <Route path="/tennis" element={<TennisProduct />} />
           <Route path="/badminton" element={<BadmintonProduct />} />
           <Route path="/verify" element={<Verify />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} /> */}
 
           <Route path="/product-list" element={<ProductList />} />
           <Route path="/product/:productId" element={<ProductDetails />} />
 
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/add-product" element={<AddProduct />} />
+
+          <Route path="product/category/:category" element={<CategoryProducts />} />
+
           
           {/* Fallback route */}
         </Routes>

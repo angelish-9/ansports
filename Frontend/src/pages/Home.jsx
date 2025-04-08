@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import CategoryCard from "../components/CategoryCard";
+// import CategoryCard from "../components/CategoryCard";
 import ProductCard from "../components/ProductCard";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
@@ -48,14 +48,14 @@ const Home = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="py-12 px-6 bg-gray-100">
+      {/* <section className="py-12 px-6 bg-gray-100">
         <h2 className="text-3xl font-bold text-center mb-6">Shop by Sport</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {categories.map((category) => (
             <CategoryCard key={category.name} category={category} />
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* footer */}
       <Footer />

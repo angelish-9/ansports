@@ -1,57 +1,62 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';  // To fetch the productId from the URL (for routing)
+import { useParams } from 'react-router-dom';
+
+import Navbar from './../admin/Navbar';
+import UserNavbar from './../Navbar';
 
 const ProductDetails = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Getting the productId from the URL using React Router
+    const role = localStorage.getItem("role");
+    const isAdmin = role === 'admin';
+
+
+
     const { productId } = useParams();
-    const navigate = useNavigate();  // To navigate programmatically after product is deleted
+    const navigate = useNavigate();
 
-    console.log(productId);  // Log the productId to the console for debugging
 
-    // Fetch the single product details based on productId
     const fetchProduct = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/product/single/${productId}`);  // Make GET request to backend
+            const response = await axios.get(`http://localhost:5000/api/product/single/${productId}`);
 
             if (response.data.success) {
-                setProduct(response.data.product);  // Set the product data in state
+                setProduct(response.data.product);
             } else {
-                setError('Product not found');  // Handle case where product doesn't exist
+                setError('Product not found');
             }
         } catch (err) {
-            setError('Error fetching product data');  // Handle network or server errors
+            setError('Error fetching product data');
             console.error(err);
         } finally {
-            setLoading(false);  // Set loading to false when the request is done
+            setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchProduct();  // Call fetchProduct when the component mounts or when productId changes
-    }, [productId]);  // Trigger fetch again if productId changes
+        fetchProduct();
+    }, [productId]);
 
     if (loading) {
-        return <div className="text-center text-lg font-semibold">Loading...</div>;  // Show loading text while fetching data
+        return <div className="text-center text-xl font-semibold text-gray-700">Loading...</div>;
     }
 
     if (error) {
-        return <div className="text-center text-lg font-semibold text-red-500">{error}</div>;  // Show error message if fetching failed
+        return <div className="text-center text-xl font-semibold text-red-500">{error}</div>;
     }
 
     if (!product) {
-        return <div className="text-center text-lg font-semibold">No product found.</div>;  // In case product is still null
+        return <div className="text-center text-xl font-semibold text-gray-700">No product found.</div>;
     }
 
     const userRole = localStorage.getItem('role');
-    const token = localStorage.getItem('token');  // Get token from localStorage
+    const token = localStorage.getItem('token');
 
-    // Function to handle product removal
+
     const removeProduct = async () => {
         try {
             const response = await axios.post(
@@ -59,9 +64,9 @@ const ProductDetails = () => {
                 { id: productId },
                 {
                     headers: {
-                        'Content-Type': 'application/json', // Updated content type for JSON data
-                        'Authorization': `Bearer ${token}`, // Include the token in the Authorization header
-                    }
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
                 }
             );
 
@@ -78,57 +83,60 @@ const ProductDetails = () => {
     };
 
     return (
-        <div className="container mx-auto p-6 bg-white shadow-lg rounded-lg">
-            {userRole === 'admin' && (
-                <div className="text-right mb-4">
-                    <Link
-                        to={`/product/edit/${productId}`}
-                        className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                        Edit
-                    </Link>
-                    <button
-                        onClick={removeProduct}
-                        className="ml-4 bg-red-500 text-white px-6 py-2 rounded-md hover:bg-red-700 transition-colors"
-                    >
-                        Remove Product
-                    </button>
-                </div>
-            )}
+        <>
+            {isAdmin ? <Navbar /> : <UserNavbar />}
+            <div className="container mx-auto p-8 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-200 rounded-lg shadow-xl">
+                {userRole === 'admin' && (
+                    <div className="text-right mb-6">
+                        <Link
+                            to={`/product/edit/${productId}`}
+                            className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105"
+                        >
+                            Edit Product
+                        </Link>
+                        <button
+                            onClick={removeProduct}
+                            className="ml-4 bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-all transform hover:scale-105"
+                        >
+                            Remove Product
+                        </button>
+                    </div>
+                )}
 
-            {/* Product Details */}
-            <div className="product-details mt-6">
-                {product && (
-                    <>
-                        <h3 className="text-3xl font-semibold mb-2">{product.name}</h3>
-                        <p className="text-lg text-gray-600">{product.description}</p>
-                        <p className="text-xl font-bold text-green-600 mt-2">
+                <div className="flex flex-col md:flex-row justify-between items-center bg-white p-8 rounded-xl shadow-md">
+                    <div className="md:w-2/3">
+                        <h3 className="text-4xl font-extrabold text-gray-800">{product.name}</h3>
+                        <p className="text-lg text-gray-600 mt-4">{product.description}</p>
+                        <p className="text-xl font-bold text-green-700 mt-6">
                             <strong>Price:</strong> ${product.price}
                         </p>
 
                         {product.bestseller && (
-                            <span className="text-xs text-white bg-green-500 px-3 py-1 rounded-full mt-2 inline-block">
+                            <span className="mt-2 inline-block bg-green-500 text-white text-xs font-semibold px-4 py-1 rounded-full">
                                 Bestseller
                             </span>
                         )}
+                    </div>
 
-                        {/* Display the product images */}
+                    <div className=" mt-8 md:mt-0">
                         {product.image && product.image.length > 0 && (
-                            <div className="mt-6">
-                                <h4 className="font-semibold text-lg mb-2">Product Images:</h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div>
+                                <h4 className="text-lg font-semibold text-gray-700 mb-4">Product Images</h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {product.image.map((img, index) => (
                                         <img
-                                            src={`http://localhost:5000${product.image}`}
-                                            alt={`Product Image`}
-                                            className="w-full h-auto object-cover rounded-lg shadow-md"
+                                            key={index}
+                                            src={`http://localhost:5000${img}`}
+                                            alt={`Product Image ${index + 1}`}
+                                            className="w-full h-full object-cover rounded-lg shadow-lg hover:scale-105 transition-all"
                                         />
+                                    ))}
                                 </div>
                             </div>
                         )}
-                    </>
-                )}
-            </div>
-        </div>
+                    </div>
+                </div>
+            </div></>
     );
 };
 

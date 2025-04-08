@@ -102,4 +102,19 @@ const listProduct = async (req, res) => {
 
 }
 
-export { addProduct, removeProduct, listProduct, singleProduct }
+const categoryProduct = async (req, res) => {
+    try {
+      const category = req.params.category;
+      const products = await productModel.find({ category });
+  
+      if (!products) {
+        return res.status(404).json({ message: 'No products found for this category' });
+      }
+  
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+}
+
+export { addProduct, removeProduct, listProduct, singleProduct, categoryProduct }

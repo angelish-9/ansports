@@ -52,13 +52,15 @@ const AddProduct = () => {
       formData.append("name", product.name);
       formData.append("description", product.description);
       formData.append("price", product.price);
-      formData.append("category", product.category);
+      formData.append("category", product.category.toLowerCase());
       formData.append("sizes", JSON.stringify(product.sizes));
       formData.append("bestseller", product.bestseller);
 
       if (product.image) {
         formData.append("image", product.image);
       }
+
+      console.table(formData);
 
       const token = localStorage.getItem("token");
 
@@ -142,7 +144,7 @@ const AddProduct = () => {
               >
                 <option value="">Select Category</option>
                 {categories.map((cat) => (
-                  <option key={cat} value={cat}>
+                  <option key={cat.toLowerCase()} value={cat}>
                     {cat}
                   </option>
                 ))}

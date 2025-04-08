@@ -5,6 +5,13 @@ const Navbar = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const categories = [
+    "football", "basketball", "cricket", "tennis", "badminton", "golf",
+    "carrom", "volleyball", "swimming", "boxing", "kabbadi", "trekking",
+    "rafting", "firstaid"
+  ];
+
+
   useEffect(() => {
     // Fetch token and user role from localStorage
     const token = localStorage.getItem("token");
@@ -38,21 +45,20 @@ const Navbar = () => {
             <li>
               <div>
 
-              <button
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  localStorage.removeItem("user");
-                  setIsLoggedIn(false);
-                  setIsAdmin(false);
-                }}
-                className="hover:text-red-600"
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    setIsLoggedIn(false);
+                    setIsAdmin(false);
+                  }}
+                  className="hover:text-red-600"
                 >
-                Logout
-              </button>
+                  Logout
+                </button>
 
-              <Link to="/admin" className="hover:text-pink-600">Admin Dashboard</Link>
 
-                </div>
+              </div>
             </li>
           )}
         </ul>
@@ -62,32 +68,22 @@ const Navbar = () => {
       {isAdmin && (
         <div className="bg-gray-100 shadow-sm w-full">
           <div className="container mx-auto flex justify-center space-x-6 py-2">
-            {/* <Link to="/admin/dashboard" className="hover:text-pink-600">Admin Dashboard</Link>
-            <Link to="/admin/orders" className="hover:text-pink-600">Manage Orders</Link> */}
-            <Link to="/product-list" className="hover:text-pink-600">Manage Products</Link>
+
+            <Link to="/admin" className="hover:text-pink-600">Admin Dashboard</Link>
+
           </div>
         </div>
       )}
 
       {/* Bottom Navbar (Product Categories) */}
-      <div className="bg-gray-100 shadow-sm w-full">
-        <div className="container mx-auto flex justify-center space-x-6 py-2">
-          <Link to="/football" className="hover:text-pink-600">Football</Link>
-          <Link to="/basketball" className="hover:text-pink-600">Basketball</Link>
-          <Link to="/cricket" className="hover:text-pink-600">Cricket</Link>
-          <Link to="/tennis" className="hover:text-pink-600">Tennis</Link>
-          <Link to="/badminton" className="hover:text-pink-600">Badminton</Link>
-          <Link to="/golf" className="hover:text-pink-600">Golf</Link>
-          <Link to="/carrom" className="hover:text-pink-600">Carrom</Link>
-          <Link to="/volleyball" className="hover:text-pink-600">Volleyball</Link>
-          <Link to="/swimming" className="hover:text-pink-600">Swimming</Link>
-          <Link to="/boxing" className="hover:text-pink-600">Boxing</Link>
-          <Link to="/kabbadi" className="hover:text-pink-600">Kabbadi</Link>
-          <Link to="/trekking" className="hover:text-pink-600">Trekking</Link>
-          <Link to="/rafting" className="hover:text-pink-600">Rafting</Link>
-          <Link to="/firstaid" className="hover:text-pink-600">First Aid</Link>
-        </div>
+      <div className="container mx-auto flex justify-center space-x-6 py-2">
+        {categories.map((cat) => (
+          <Link key={cat} to={`/product/category/${cat}`} className="hover:text-pink-600 capitalize">
+            {cat}
+          </Link>
+        ))}
       </div>
+
     </nav>
   );
 };
