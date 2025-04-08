@@ -1,7 +1,21 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./../../components/admin/Sidebar";
 import Navbar from "./../../components/admin/Navbar";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    
+    if (!token || role !== "admin") {
+      navigate("/"); 
+    }
+  }, [navigate]);
+
   return (
     <>
       <Navbar />

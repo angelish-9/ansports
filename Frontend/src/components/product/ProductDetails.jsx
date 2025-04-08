@@ -10,15 +10,11 @@ const ProductDetails = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    const role = localStorage.getItem("role");
-    const isAdmin = role === 'admin';
-
-
+    const [selectedSize, setSelectedSize] = useState('');
+    const [quantity, setQuantity] = useState(1);
 
     const { productId } = useParams();
     const navigate = useNavigate();
-
 
     const fetchProduct = async () => {
         try {
@@ -41,23 +37,46 @@ const ProductDetails = () => {
         fetchProduct();
     }, [productId]);
 
-    if (loading) {
-        return <div className="text-center text-xl font-semibold text-gray-700">Loading...</div>;
-    }
+    const handleSizeChange = (e) => {
+        setSelectedSize(e.target.value);
+    };
 
-    if (error) {
-        return <div className="text-center text-xl font-semibold text-red-500">{error}</div>;
-    }
+    const handleQuantityChange = (e) => {
+        setQuantity(e.target.value);
+    };
 
-    if (!product) {
-        return <div className="text-center text-xl font-semibold text-gray-700">No product found.</div>;
-    }
+    const handleAddToCart = async () => {
+        if (!selectedSize) {
+            alert('Please select a size');
+            return;
+        }
 
-    const userRole = localStorage.getItem('role');
-    const token = localStorage.getItem('token');
+        try {
+            const cartData = {
+                productId: product._id,
+                size: selectedSize,
+                quantity,
+            };
 
+            const response = await axios.post('http://localhost:5000/api/cart/add', cartData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`, // Assumes user is logged in and has a token
+                },
+            });
 
-    const removeProduct = async () => {
+            if (response.data.success) {
+                alert('Product added to cart');
+            } else {
+                alert('Error adding product to cart');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Error adding product to cart');
+        }
+    };
+
+    const handleRemoveProduct = async () => {
         try {
             const response = await axios.post(
                 'http://localhost:5000/api/product/remove',
@@ -65,7 +84,7 @@ const ProductDetails = () => {
                 {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     },
                 }
             );
@@ -82,26 +101,43 @@ const ProductDetails = () => {
         }
     };
 
+    if (loading) {
+        return <div className="text-center text-xl font-semibold text-gray-700">Loading...</div>;
+    }
+
+    if (error) {
+        return <div className="text-center text-xl font-semibold text-red-500">{error}</div>;
+    }
+
+    if (!product) {
+        return <div className="text-center text-xl font-semibold text-gray-700">No product found.</div>;
+    }
+
+    const userRole = localStorage.getItem('role');
+    const isAdmin = userRole === 'admin';
+
     return (
         <>
             {isAdmin ? <Navbar /> : <UserNavbar />}
-            <div className="container mx-auto p-8 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-200 rounded-lg shadow-xl">
-                {userRole === 'admin' && (
-                    <div className="text-right mb-6">
-                        <Link
-                            to={`/product/edit/${productId}`}
-                            className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105"
-                        >
-                            Edit Product
-                        </Link>
-                        <button
-                            onClick={removeProduct}
-                            className="ml-4 bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-all transform hover:scale-105"
-                        >
-                            Remove Product
-                        </button>
-                    </div>
-                )}
+            <div className="mt-8">
+                <div>
+                    {userRole === 'admin' && (
+                        <div className="text-right mb-6">
+                            <Link
+                                to={`/product/edit/${productId}`}
+                                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105"
+                            >
+                                Edit Product
+                            </Link>
+                            <button
+                                onClick={handleRemoveProduct}
+                                className="ml-4 bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-all transform hover:scale-105"
+                            >
+                                Remove Product
+                            </button>
+                        </div>
+                    )}
+                </div>
 
                 <div className="flex flex-col md:flex-row justify-between items-center bg-white p-8 rounded-xl shadow-md">
                     <div className="md:w-2/3">
@@ -116,9 +152,47 @@ const ProductDetails = () => {
                                 Bestseller
                             </span>
                         )}
+
+                        {/* Size Selection */}
+                        <div className="mt-4">
+                            <label className="block text-lg font-semibold text-gray-700">Select Size:</label>
+                            <select
+                                value={selectedSize}
+                                onChange={handleSizeChange}
+                                className="mt-2 p-2 w-full border rounded-lg"
+                            >
+                                <option value="">Select Size</option>
+                                {product.sizes &&
+                                    product.sizes.map((size, index) => (
+                                        <option key={index} value={size}>
+                                            {size}
+                                        </option>
+                                    ))}
+                            </select>
+                        </div>
+
+                        {/* Quantity Selection */}
+                        <div className="mt-4">
+                            <label className="block text-lg font-semibold text-gray-700">Quantity:</label>
+                            <input
+                                type="number"
+                                value={quantity}
+                                onChange={handleQuantityChange}
+                                min="1"
+                                className="mt-2 p-2 w-20 border rounded-lg"
+                            />
+                        </div>
+
+                        {/* Add to Cart Button */}
+                        <button
+                            onClick={handleAddToCart}
+                            className="mt-6 bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-all transform hover:scale-105"
+                        >
+                            Add to Cart
+                        </button>
                     </div>
 
-                    <div className=" mt-8 md:mt-0">
+                    <div className="mt-8 md:mt-0">
                         {product.image && product.image.length > 0 && (
                             <div>
                                 <h4 className="text-lg font-semibold text-gray-700 mb-4">Product Images</h4>
@@ -136,7 +210,8 @@ const ProductDetails = () => {
                         )}
                     </div>
                 </div>
-            </div></>
+            </div>
+        </>
     );
 };
 

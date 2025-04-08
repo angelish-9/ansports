@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom'; // For navigation
 
 import Sidebar from './../admin/Sidebar';
 import Navbar from './../admin/Navbar';
+import UserNavbar from './../Navbar';
+
 
 const ProductList = () => {
     const [products, setProducts] = useState([]);
@@ -11,7 +13,10 @@ const ProductList = () => {
     const [error, setError] = useState(null);
 
     const userRole = localStorage.getItem('role');
-    const token = localStorage.getItem('token');  // Get token from localStorage
+    const token = localStorage.getItem('token');
+
+    const isAdmin = userRole === 'admin';
+
 
     // Fetch the list of products
     const fetchProducts = async () => {
@@ -44,9 +49,9 @@ const ProductList = () => {
 
     return (
         <>
-            <Navbar />
-            <div className="flex min-h-screen">
-                <Sidebar />
+            {isAdmin ? <Navbar /> : <UserNavbar />}
+            <div className="flex min-h-screen mt-8">
+            {isAdmin ? <Sidebar /> : null }
 
                 <div className="flex-1 p-8 bg-gray-100">
 

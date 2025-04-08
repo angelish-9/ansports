@@ -27,7 +27,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="bg-white shadow-md fixed w-full top-0 z-50">
+    <nav className="bg-white shadow-md sticky w-full top-0 z-50 mb-5">
       {/* Top Navbar */}
       <div className="container mx-auto flex justify-between items-center py-3 px-6">
         <Link to="/" className="text-xl font-bold text-pink-600">SportsShop</Link>
@@ -48,7 +48,7 @@ const Navbar = () => {
                 <button
                   onClick={() => {
                     localStorage.removeItem("token");
-                    localStorage.removeItem("user");
+                    localStorage.removeItem("role");
                     setIsLoggedIn(false);
                     setIsAdmin(false);
                   }}

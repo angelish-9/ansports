@@ -37,10 +37,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/cart" element={<Cart />} />
           {/* <Route path="/orders" element={<Orders />} />
           <Route path="/rentals" element={<Rentals />} />
           <Route path="/customization" element={<Customization />} />
-          <Route path="/cart" element={<Cart />} /> */}
           {/* <Route path="/profile" element={<Profile />} /> */}
           {/* <Route path="/about" element={<About />} /> */}
           {/* <Route path="/contact" element={<Contact />} /> */}
