@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const addProduct = async (req, res) => {
     try {
-        const { name, description, price, category, subCategory, sizes, bestseller } = req.body;
+        const { name, description, price, category, sizes, bestseller } = req.body;
 
         
         const image = req.file; 
@@ -46,7 +46,6 @@ const addProduct = async (req, res) => {
             description,
             category,
             price: Number(price),
-            subCategory,
             bestseller: bestseller === "true" ? true : false,
             sizes: JSON.parse(sizes),
             image: imageUrl, 
