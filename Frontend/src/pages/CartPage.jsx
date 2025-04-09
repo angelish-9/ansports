@@ -5,200 +5,175 @@ import UserNavbar from './../components/Navbar';
 
 
 const CartPage = () => {
-    const [cart, setCart] = useState(null);
-    const [error, setError] = useState('');
-    const [editedItem, setEditedItem] = useState(null); 
-    const [editedQuantity, setEditedQuantity] = useState(0); 
-    const [originalQuantity, setOriginalQuantity] = useState(0); 
+    const [cartItems, setCartItems] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const fetchCart = async () => {
-        try {
-            const response = await axios.post(
-                'http://localhost:5000/api/cart/get',
-                {},
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                }
-            );
-            if (response.data.success) {
-                setCart(response.data.cart);
-            } else {
-                setError(response.data.message || 'Failed to fetch cart');
-            }
-        } catch (err) {
-            console.error(err);
-            setError('An error occurred while fetching the cart.');
-        }
-    };
-
-    const removeItem = async (productId, size) => {
-        try {
-            const response = await axios.post(
-                'http://localhost:5000/api/cart/remove',
-                { productId, size },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                }
-            );
-            if (response.data.success) {
-                setCart(response.data.cart);
-            } else {
-                alert(response.data.message || 'Failed to remove item');
-            }
-        } catch (err) {
-            console.error(err);
-            alert('An error occurred while removing the item.');
-        }
-    };
-
-    const updateQuantity = async (productId, size, quantity) => {
-        try {
-            const response = await axios.post(
-                'http://localhost:5000/api/cart/update',
-                { productId, size, quantity },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                }
-            );
-            if (response.data.success) {
-                setCart(response.data.cart);
-                setEditedItem(null); 
-                setEditedQuantity(0); 
-                setOriginalQuantity(0); 
-            } else {
-                alert(response.data.message || 'Failed to update quantity');
-            }
-        } catch (err) {
-            console.error(err);
-            alert('An error occurred while updating the quantity.');
-        }
-    };
-
+    // Fetch cart items on mount
     useEffect(() => {
-        fetchCart();
+        axios.post(
+            'http://localhost:5000/api/cart/get',
+            {},
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            }
+        )
+            .then(res => {
+                console.log("Cart data:", res.data);
+                setCartItems(res.data.cart.items || []);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error("Failed to fetch cart items", err);
+                setLoading(false);
+            });
     }, []);
 
+    // Update the item quantity
+    const updateQuantity = (itemId, newQuantity) => {
+        setCartItems(prev =>
+            prev.map(item =>
+                item._id === itemId ? { ...item, quantity: newQuantity } : item
+            )
+        );
+
+        axios.post('http://localhost:5000/api/cart/update', {
+            id: itemId,
+            quantity: newQuantity,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        }).catch(err => {
+            console.error("Failed to update item quantity", err);
+        });
+    };
+
+    // Increase quantity
+    const increase = (itemId, currentQuantity) => {
+        updateQuantity(itemId, currentQuantity + 1);
+    };
+
+    // Decrease quantity
+    const decrease = (itemId, currentQuantity) => {
+        if (currentQuantity > 1) {
+            updateQuantity(itemId, currentQuantity - 1);
+        }
+    };
+
+    // Remove item from the cart
+    const removeItem = (productId, size) => {
+        axios.post(
+            'http://localhost:5000/api/cart/remove',
+            { productId, size },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                }
+            }
+        )
+            .then(res => {
+                console.log('Updated cart:', res.data.cart);
+                setCartItems(res.data.cart.items); // Update the cart items with the new response
+            })
+            .catch(err => {
+                console.error("Failed to remove item", err);
+            });
+    };
+
+    // Calculate total price for each item
+    const calculateItemTotal = (item) => {
+        return item.productId.price * item.quantity;
+    };
+
+    // Calculate grand total
     const calculateGrandTotal = () => {
-        if (!cart) return 0;
-        return cart.items.reduce((total, item) => {
-            return total + (item.productId.price * item.quantity);
-        }, 0);
+        return cartItems.reduce((total, item) => total + calculateItemTotal(item), 0);
     };
 
-    const handleQuantityChange = (item, newQuantity) => {
-        setEditedItem(item);
-        setOriginalQuantity(item.quantity); 
-        setEditedQuantity(newQuantity);
+    // Proceed to checkout
+    const proceedToCheckout = () => {
+        if (cartItems.length > 0) {
+            window.location.href = '/checkout'; // Redirect to checkout page
+        } else {
+            alert("Your cart is empty. Add items to proceed.");
+        }
     };
 
-    const cancelEdit = () => {
-        setEditedItem(null);
-        setEditedQuantity(originalQuantity); 
-    };
-
-    const handleQuantityIncrease = (item) => {
-        setEditedItem(item); 
-        setEditedQuantity((prevQuantity) => prevQuantity + 1); 
-    };
-
-    const handleQuantityDecrease = (item) => {
-        const newQuantity = item.quantity > 1 ? item.quantity - 1 : 1; 
-        setEditedItem(item); 
-        setEditedQuantity(newQuantity);
-    };
-
-    if (error) return <div className="text-red-500">{error}</div>;
+    if (loading) return <p>Loading cart...</p>;
 
     return (
+
         <>
             <UserNavbar />
+            <div className="p-6 max-w-3xl mx-auto">
+                <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
 
-            <div className="p-4 max-w-3xl mx-auto">
-                <h2 className="text-2xl font-bold mb-6">Your Cart</h2>
-
-                {cart && cart.items.length > 0 ? (
+                {cartItems.length === 0 ? (
+                    <p>Your cart is empty.</p>
+                ) : (
                     <>
-                        <ul className="space-y-4 mb-6">
-                            {cart.items.map((item, index) => (
-                                <li key={index} className="border p-4 rounded shadow flex justify-between items-start">
-                                    <div className="flex space-x-4">
+                        {cartItems.map(item => (
+                            <div
+                                key={item._id}
+                                className="flex items-center justify-between bg-gray-100 p-4 mb-3 rounded-lg"
+                            >
+                                <div className="flex-1">
+                                    <div className="flex gap-2">
                                         <img
                                             src={`http://localhost:5000${item.productId.image}`}
                                             alt={item.productId.name}
                                             className="w-20 h-20 object-cover rounded"
                                         />
                                         <div>
-                                            <h3 className="text-lg font-semibold">{item.productId.name}</h3>
-                                            <p>Price: ${item.productId.price}</p>
-                                            <p>Size: {item.size}</p>
-                                            <p className="font-semibold">
-                                                Total: ${item.productId.price * item.quantity}
-                                            </p>
-
-                                            <div className="flex items-center space-x-2">
-                                                <button
-                                                    onClick={() => handleQuantityDecrease(item)}
-                                                    className="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400"
-                                                >
-                                                    -
-                                                </button>
-                                                <span>{editedItem && editedItem.productId._id === item.productId._id ? editedQuantity : item.quantity}</span>
-                                                <button
-                                                    onClick={() => handleQuantityIncrease(item)}
-                                                    className="px-2 py-1 bg-gray-300 rounded hover:bg-gray-400"
-                                                >
-                                                    +
-                                                </button>
-                                            </div>
-
-                                            {editedItem && editedItem.productId._id === item.productId._id && (
-                                                <div className="mt-2 flex space-x-4">
-                                                    <button
-                                                        onClick={() => updateQuantity(item.productId._id, item.size, editedQuantity)}
-                                                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                                    >
-                                                        Update
-                                                    </button>
-                                                    <button
-                                                        onClick={cancelEdit}
-                                                        className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            )}
+                                            <p className="font-semibold">{item.productId.name}</p>
+                                            <p className="text-sm text-gray-500">Size: {item.size}</p>
+                                            <p className="text-sm text-gray-500">Price: ${item.productId.price}</p>
+                                            <p className="text-sm text-gray-500">Total: ${calculateItemTotal(item).toFixed(2)}</p>
                                         </div>
                                     </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => decrease(item._id, item.quantity)}
+                                        className="bg-red-500 text-white px-3 py-1 rounded"
+                                    >
+                                        -
+                                    </button>
+                                    <span className="text-lg">{item.quantity}</span>
+                                    <button
+                                        onClick={() => increase(item._id, item.quantity)}
+                                        className="bg-green-500 text-white px-3 py-1 rounded"
+                                    >
+                                        +
+                                    </button>
                                     <button
                                         onClick={() => removeItem(item.productId._id, item.size)}
-                                        className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                        className="bg-yellow-500 text-white px-3 py-1 rounded"
                                     >
                                         Remove
                                     </button>
-                                </li>
-                            ))}
-                        </ul>
+                                </div>
+                            </div>
+                        ))}
+                        <div className="mt-6">
+                            <p className="font-semibold text-lg">Grand Total: ${calculateGrandTotal().toFixed(2)}</p>
+                        </div>
 
-                        <div className="text-right border-t pt-4">
-                            <p className="text-lg font-semibold mb-2">
-                                Grand Total: ${calculateGrandTotal()}
-                            </p>
-                            <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                        {/* Proceed to checkout button */}
+                        <div className="mt-6 flex justify-end">
+                            <button
+                                onClick={proceedToCheckout}
+                                className="bg-blue-500 text-white px-6 py-2 rounded-lg"
+                            >
                                 Proceed to Checkout
                             </button>
                         </div>
                     </>
-                ) : (
-                    <p>Your cart is empty.</p>
                 )}
             </div>
         </>

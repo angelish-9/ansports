@@ -127,3 +127,51 @@ export const removeFromCart = async (req, res) => {
         });
     }
 };
+
+export const updateCart = async (req, res) => {
+    try {
+        const { id, quantity } = req.body; // itemId and newQuantity
+        const userId = req.user._id;
+
+        if (!id || !quantity) {
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
+        }
+
+        // Find the cart for the user
+        const cart = await cartModel.findOne({ userId });
+        if (!cart) {
+            return res.status(404).json({ success: false, message: 'Cart not found' });
+        }
+
+        // Find the cart item by id and update its quantity
+        const itemIndex = cart.items.findIndex(item => item._id.toString() === id);
+        if (itemIndex === -1) {
+            return res.status(404).json({ success: false, message: 'Item not found in cart' });
+        }
+
+        // Update the quantity
+        cart.items[itemIndex].quantity = quantity;
+
+        // Save the updated cart
+        await cart.save();
+
+        // Recalculate the total price (optional)
+        const totalPrice = cart.items.reduce((acc, item) => {
+            const price = item.productId?.price || 0;
+            return acc + price * item.quantity;
+        }, 0);
+
+        res.status(200).json({
+            success: true,
+            message: 'Cart updated successfully',
+            cart,
+            totalPrice,
+        });
+    } catch (err) {
+        console.error('Error updating cart:', err);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while updating cart',
+        });
+    }
+};
