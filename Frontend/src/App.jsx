@@ -6,20 +6,20 @@ import { Suspense, lazy } from "react";
 const Home = lazy(() => import("./pages/Home.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Signup = lazy(() => import("./pages/Signup.jsx"));
-const Orders = lazy(() => import("./pages/Orders.jsx"));
-const Rentals = lazy(() => import("./pages/Rentals.jsx"));
-const Customization = lazy(() => import("./pages/Customization.jsx"));
-const Cart = lazy(() => import("./pages/Cart.jsx"));
-const Profile = lazy(() => import("./pages/Profile.jsx"));
-const About = lazy(() => import("./pages/About.jsx"));
-const Verify = lazy(() => import("./pages/Verify.jsx"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
-const Contact = lazy(() => import("./pages/Contact.jsx"));
-const FootballProduct = lazy(() => import("./pages/FootballProduct.jsx"));
-const BasketballProduct = lazy(() => import("./pages/BasketballProduct.jsx"));
-const CricketProduct = lazy(() => import("./pages/CricketProduct.jsx"));
-const TennisProduct = lazy(() => import("./pages/TennisProduct.jsx"));
-const BadmintonProduct = lazy(() => import("./pages/BadmintonProduct.jsx"));
+// const Orders = lazy(() => import("./pages/Orders.jsx"));
+// const Rentals = lazy(() => import("./pages/Rentals.jsx"));
+// const Customization = lazy(() => import("./pages/Customization.jsx"));
+// const Cart = lazy(() => import("./pages/Cart.jsx"));
+// const Profile = lazy(() => import("./pages/Profile.jsx"));
+// const About = lazy(() => import("./pages/About.jsx"));
+// const Verify = lazy(() => import("./pages/Verify.jsx"));
+// const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
+// const Contact = lazy(() => import("./pages/Contact.jsx"));
+// const FootballProduct = lazy(() => import("./pages/FootballProduct.jsx"));
+// const BasketballProduct = lazy(() => import("./pages/BasketballProduct.jsx"));
+// const CricketProduct = lazy(() => import("./pages/CricketProduct.jsx"));
+// const TennisProduct = lazy(() => import("./pages/TennisProduct.jsx"));
+// const BadmintonProduct = lazy(() => import("./pages/BadmintonProduct.jsx"));
 
 const ProductDetails = lazy(() => import("./components/product/ProductDetails.jsx"));
 const ProductList = lazy(() => import("./components/product/ProductList.jsx"));
@@ -27,6 +27,7 @@ const ProductList = lazy(() => import("./components/product/ProductList.jsx"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 const AddProduct = lazy(() => import("./pages/admin/AddProduct.jsx"));
 const CategoryProducts = lazy(() => import("./components/product/CategoryProducts.jsx"));
+const CartPage = lazy(() => import("./pages/CartPage.jsx"));
 
 
 function App() {
@@ -37,7 +38,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/cart" element={<Cart />} />
+          {/* <Route path="/cart" element={<Cart />} /> */}
           {/* <Route path="/orders" element={<Orders />} />
           <Route path="/rentals" element={<Rentals />} />
           <Route path="/customization" element={<Customization />} />
@@ -59,6 +60,8 @@ function App() {
           <Route path="/admin/add-product" element={<AddProduct />} />
 
           <Route path="product/category/:category" element={<CategoryProducts />} />
+
+          <Route path="/cart" element={<CartPage />} />
 
           
           {/* Fallback route */}
