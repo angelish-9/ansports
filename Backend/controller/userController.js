@@ -87,8 +87,37 @@ const registerUser = async (req, res) => {
   }
 }
 
+const getCurrentUser = async (req, res) => {
+  try {
+      // Since the user is already added to `req.user` by the authUser middleware,
+      // we can directly access it here.
+      const user = req.user;
+
+      // If there's no user, this means authentication failed, but `authUser` should have already handled it.
+      if (!user) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      // Remove sensitive information like the password before sending the response
+      const { password, ...userData } = user.toObject();
+
+      // Send the user data (without password)
+      res.status(200).json({
+          success: true,
+          user: userData, // Send user details without password
+      });
+  } catch (err) {
+      console.error('Error retrieving current user:', err);
+      res.status(500).json({
+          success: false,
+          message: 'Server error while fetching user data',
+      });
+  }
+};
+
 
 export {
   loginUser,
-  registerUser
+  registerUser,
+  getCurrentUser
 }

@@ -34,7 +34,7 @@ const Navbar = () => {
         <ul className="flex space-x-6">
           <li><Link to="/" className="hover:text-pink-600">Home</Link></li>
           <li><Link to="/rentals" className="hover:text-pink-600">Rentals</Link></li>
-          <li><Link to="/customization" className="hover:text-pink-600">Customization</Link></li>
+          {/* <li><Link to="/customization" className="hover:text-pink-600">Customization</Link></li> */}
           <li><Link to="/about" className="hover:text-pink-600">About Us</Link></li>
           <li><Link to="/contact" className="hover:text-pink-600">Contact</Link></li>
           <li><Link to="/cart" className="hover:text-pink-600">Cart</Link></li>
