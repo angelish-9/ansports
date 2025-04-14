@@ -1,33 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
 
 import Navbar from './../admin/Navbar';
 import UserNavbar from './../Navbar';
 
 const ProductDetails = () => {
+    const { productId } = useParams();
+    const navigate = useNavigate();
+
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedSize, setSelectedSize] = useState('');
     const [quantity, setQuantity] = useState(1);
+    const [days, setDays] = useState(1);
 
-    const { productId } = useParams();
-    const navigate = useNavigate();
+    const userRole = localStorage.getItem('role');
+    const isAdmin = userRole === 'admin';
 
     const fetchProduct = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/product/single/${productId}`);
-
-            if (response.data.success) {
-                setProduct(response.data.product);
+            const res = await axios.get(`http://localhost:5000/api/product/single/${productId}`);
+            if (res.data.success) {
+                setProduct(res.data.product);
             } else {
                 setError('Product not found');
             }
         } catch (err) {
-            setError('Error fetching product data');
             console.error(err);
+            setError('Failed to load product');
         } finally {
             setLoading(false);
         }
@@ -37,63 +39,49 @@ const ProductDetails = () => {
         fetchProduct();
     }, [productId]);
 
-    const handleSizeChange = (e) => {
-        setSelectedSize(e.target.value);
-    };
-
-    const handleQuantityChange = (e) => {
-        setQuantity(e.target.value);
-    };
-
     const handleAddToCart = async () => {
-        if (!selectedSize) {
-            alert('Please select a size');
-            return;
-        }
+        if (!selectedSize) return alert('Please select a size');
 
         try {
-            const cartData = {
-                productId: product._id,
-                size: selectedSize,
-                quantity,
-            };
-
-            const response = await axios.post('http://localhost:5000/api/cart/add', cartData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`, // Assumes user is logged in and has a token
+            const res = await axios.post(
+                'http://localhost:5000/api/cart/add',
+                {
+                    productId: product._id,
+                    size: selectedSize,
+                    quantity,
+                    days: product.canRent ? days : undefined,
                 },
-            });
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                }
+            );
 
-            if (response.data.success) {
-                alert('Product added to cart');
-            } else {
-                alert('Error adding product to cart');
-            }
+            res.data.success ? alert('Added to cart') : alert('Failed to add');
         } catch (err) {
             console.error(err);
-            alert('Error adding product to cart');
+            alert('Error adding to cart');
         }
     };
 
     const handleRemoveProduct = async () => {
         try {
-            const response = await axios.post(
+            const res = await axios.post(
                 'http://localhost:5000/api/product/remove',
                 { id: productId },
                 {
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
                 }
             );
 
-            if (response.data.success) {
-                alert('Product removed successfully');
+            if (res.data.success) {
+                alert('Product removed');
                 navigate('/product-list');
             } else {
-                alert('Error removing product');
+                alert('Failed to remove');
             }
         } catch (err) {
             console.error(err);
@@ -101,113 +89,143 @@ const ProductDetails = () => {
         }
     };
 
-    if (loading) {
-        return <div className="text-center text-xl font-semibold text-gray-700">Loading...</div>;
-    }
+    const handleRentSubmit = async () => {
+        if (!days || days < 1) return alert('Select valid days');
 
-    if (error) {
-        return <div className="text-center text-xl font-semibold text-red-500">{error}</div>;
-    }
+        try {
+            await axios.post(
+                'http://localhost:5000/api/rentals',
+                {
+                    productId: product._id,
+                    days,
+                    totalPrice: days * product.price,
+                },
+                { withCredentials: true }
+            );
+            alert('Rental request submitted');
+            setDays(1);
+        } catch (err) {
+            console.error(err);
+            alert('Rental failed');
+        }
+    };
 
-    if (!product) {
-        return <div className="text-center text-xl font-semibold text-gray-700">No product found.</div>;
-    }
+    if (loading) return <div className="text-center text-xl text-gray-600">Loading...</div>;
+    if (error) return <div className="text-center text-xl text-red-500">{error}</div>;
 
-    const userRole = localStorage.getItem('role');
-    const isAdmin = userRole === 'admin';
+    const rentalTotal = product?.canRent ? days * product.price : 0;
 
     return (
         <>
             {isAdmin ? <Navbar /> : <UserNavbar />}
-            <div className="mt-8">
-                <div>
-                    {userRole === 'admin' && (
-                        <div className="text-right mb-6">
-                            <Link
-                                to={`/product/edit/${productId}`}
-                                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105"
-                            >
-                                Edit Product
-                            </Link>
-                            <button
-                                onClick={handleRemoveProduct}
-                                className="ml-4 bg-red-600 text-white px-8 py-3 rounded-lg hover:bg-red-700 transition-all transform hover:scale-105"
-                            >
-                                Remove Product
-                            </button>
-                        </div>
-                    )}
-                </div>
+            <div className="max-w-6xl mx-auto p-6 mt-10 bg-white shadow-lg rounded-lg">
+                {isAdmin && (
+                    <div className="flex justify-end space-x-4 mb-6">
+                        <Link
+                            to={`/product/edit/${productId}`}
+                            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                        >
+                            Edit Product
+                        </Link>
+                        <button
+                            onClick={handleRemoveProduct}
+                            className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+                        >
+                            Remove Product
+                        </button>
+                    </div>
+                )}
 
-                <div className="flex flex-col md:flex-row justify-between items-center bg-white p-8 rounded-xl shadow-md">
-                    <div className="md:w-2/3">
-                        <h3 className="text-4xl font-extrabold text-gray-800">{product.name}</h3>
-                        <p className="text-lg text-gray-600 mt-4">{product.description}</p>
-                        <p className="text-xl font-bold text-green-700 mt-6">
-                            <strong>Price:</strong> ${product.price}
-                        </p>
+                <div className="flex flex-col lg:flex-row gap-10">
+                    {/* Images */}
+                    <div className="lg:w-1/2">
+                        {product?.image?.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-4">
+                                {product.image.map((img, index) => (
+                                    <img
+                                        key={index}
+                                        src={`http://localhost:5000${img}`}
+                                        alt={`Product ${index + 1}`}
+                                        className="w-full h-48 object-cover rounded shadow hover:scale-105 transition"
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-gray-400">No images available</div>
+                        )}
+                    </div>
+
+                    {/* Product Details */}
+                    <div className="lg:w-1/2 space-y-6">
+                        <h1 className="text-4xl font-bold text-gray-800">{product.name}</h1>
+                        <p className="text-gray-600">{product.description}</p>
+                        <p className="text-2xl font-semibold text-green-700">${product.price}</p>
 
                         {product.bestseller && (
-                            <span className="mt-2 inline-block bg-green-500 text-white text-xs font-semibold px-4 py-1 rounded-full">
+                            <span className="inline-block bg-green-600 text-white text-sm px-3 py-1 rounded-full">
                                 Bestseller
                             </span>
                         )}
 
-                        {/* Size Selection */}
-                        <div className="mt-4">
-                            <label className="block text-lg font-semibold text-gray-700">Select Size:</label>
+                        {/* Size */}
+                        <div>
+                            <label className="block font-medium text-gray-700 mb-1">Size:</label>
                             <select
                                 value={selectedSize}
-                                onChange={handleSizeChange}
-                                className="mt-2 p-2 w-full border rounded-lg"
+                                onChange={(e) => setSelectedSize(e.target.value)}
+                                className="w-full border rounded px-3 py-2"
                             >
                                 <option value="">Select Size</option>
-                                {product.sizes &&
-                                    product.sizes.map((size, index) => (
-                                        <option key={index} value={size}>
-                                            {size}
-                                        </option>
-                                    ))}
+                                {product.sizes.map((size, i) => (
+                                    <option key={i} value={size}>
+                                        {size}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
-                        {/* Quantity Selection */}
-                        <div className="mt-4">
-                            <label className="block text-lg font-semibold text-gray-700">Quantity:</label>
+                        {/* Quantity */}
+                        <div>
+                            <label className="block font-medium text-gray-700 mb-1">Quantity:</label>
                             <input
                                 type="number"
                                 value={quantity}
-                                onChange={handleQuantityChange}
+                                onChange={(e) => setQuantity(Number(e.target.value))}
                                 min="1"
-                                className="mt-2 p-2 w-20 border rounded-lg"
+                                className="w-24 border rounded px-3 py-2"
                             />
                         </div>
 
-                        {/* Add to Cart Button */}
+                        {/* Rent */}
+                        {product.canRent && (
+                            <div className="bg-gray-100 p-4 rounded">
+                                <label className="font-medium text-gray-700">Days to Rent:</label>
+                                <input
+                                    type="number"
+                                    value={days}
+                                    onChange={(e) => setDays(Number(e.target.value))}
+                                    min="1"
+                                    className="ml-2 w-20 border rounded px-2 py-1"
+                                />
+                                <p className="mt-2 text-blue-600 font-semibold">
+                                    Total: ${rentalTotal.toFixed(2)}
+                                </p>
+                                <button
+                                    onClick={handleRentSubmit}
+                                    className="mt-3 bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700"
+                                >
+                                    Rent Product
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Add to Cart */}
                         <button
                             onClick={handleAddToCart}
-                            className="mt-6 bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-all transform hover:scale-105"
+                            className="w-full mt-4 bg-green-700 text-white py-3 rounded hover:bg-green-800 text-lg"
                         >
                             Add to Cart
                         </button>
-                    </div>
-
-                    <div className="mt-8 md:mt-0">
-                        {product.image && product.image.length > 0 && (
-                            <div>
-                                <h4 className="text-lg font-semibold text-gray-700 mb-4">Product Images</h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {product.image.map((img, index) => (
-                                        <img
-                                            key={index}
-                                            src={`http://localhost:5000${img}`}
-                                            alt={`Product Image ${index + 1}`}
-                                            className="w-full h-full object-cover rounded-lg shadow-lg hover:scale-105 transition-all"
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

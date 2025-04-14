@@ -7,7 +7,7 @@ const Home = lazy(() => import("./pages/Home.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Signup = lazy(() => import("./pages/Signup.jsx"));
 // const Orders = lazy(() => import("./pages/Orders.jsx"));
-// const Rentals = lazy(() => import("./pages/Rentals.jsx"));
+const Rentals = lazy(() => import("./pages/Rentals.jsx"));
 // const Customization = lazy(() => import("./pages/Customization.jsx"));
 const Profile = lazy(() => import("./pages/Profile.jsx"));
 const About = lazy(() => import("./pages/About.jsx"));
@@ -23,6 +23,12 @@ const AddProduct = lazy(() => import("./pages/admin/AddProduct.jsx"));
 const CategoryProducts = lazy(() => import("./components/product/CategoryProducts.jsx"));
 const CartPage = lazy(() => import("./pages/CartPage.jsx"));
 
+const AdminMessages = lazy(() => import("./pages/admin/AdminMessages.jsx"));
+
+// import MessagesPanel from './components/MessagesPanel';
+
+import Chat from './components/Chat';
+
 
 function App() {
   return (
@@ -35,9 +41,9 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/rentals" element={<Rentals />} />
 
           {/* <Route path="/orders" element={<Orders />} />
-          <Route path="/rentals" element={<Rentals />} />
           <Route path="/customization" element={<Customization />} />
           <Route path="/verify" element={<Verify />} />
           <Route path="/forgot-password" element={<ForgotPassword />} /> */}
@@ -51,6 +57,12 @@ function App() {
           <Route path="product/category/:category" element={<CategoryProducts />} />
 
           <Route path="/cart" element={<CartPage />} />
+
+           {/* ✅ Chat route added properly */}
+           <Route path="/chat/:sender/:receiver" element={<Chat />} />
+
+
+           <Route path="/admin/messages" element={<AdminMessages />} />
 
 
           {/* Fallback route */}

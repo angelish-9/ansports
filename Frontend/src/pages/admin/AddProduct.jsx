@@ -23,6 +23,7 @@ const AddProduct = () => {
     sizes: [""],
     bestseller: false,
     image: null,
+    canRent: false,  // Initialize canRent field
   });
 
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,11 @@ const AddProduct = () => {
     setProduct({ ...product, sizes: [e.target.value] });
   };
 
+  // Fix: Updated handleRentChange to toggle canRent state
+  const handleRentChange = (e) => {
+    setProduct({ ...product, canRent: e.target.checked });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -55,12 +61,11 @@ const AddProduct = () => {
       formData.append("category", product.category.toLowerCase());
       formData.append("sizes", JSON.stringify(product.sizes));
       formData.append("bestseller", product.bestseller);
+      formData.append("canRent", product.canRent);  // Include the canRent field
 
       if (product.image) {
         formData.append("image", product.image);
       }
-
-      console.table(formData);
 
       const token = localStorage.getItem("token");
 
@@ -80,6 +85,7 @@ const AddProduct = () => {
         sizes: [""],
         bestseller: false,
         image: null,
+        canRent: false,  // Reset the rental field
       });
     } catch (error) {
       console.error(error);
@@ -180,6 +186,17 @@ const AddProduct = () => {
                 <option value={false}>No</option>
                 <option value={true}>Yes</option>
               </select>
+            </label>
+
+            <label className="block">
+              Can Rent:
+              <input
+                type="checkbox"
+                name="canRent"
+                onChange={handleRentChange}
+                className="mt-1"
+                checked={product.canRent}
+              />
             </label>
 
             <input
