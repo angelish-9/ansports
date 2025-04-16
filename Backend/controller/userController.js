@@ -7,42 +7,54 @@ const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET_KEY)
 }
 
-//Route for user login
+// Route for user login
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Validate email
     if (!validator.isEmail(email)) {
-      return res.json({ success: false, message: "Enter a valid email" })
+      return res.json({ success: false, message: "Enter a valid email" });
     }
 
+    // Find user including password
     const user = await userModel.findOne({ email });
-    if (!user) {
-      res.json({ success: false, message: "User doesn't exist" })
 
+    if (!user) {
+      return res.json({ success: false, message: "User doesn't exist" });
     }
 
+    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if (isMatch) {
-      const token = createToken(user._id);
-
-      const isAdmin = user.role === "admin"; // Ensure role exists in the model
-
-      res.json({
-        success: true,
-        token,
-        isAdmin,
-        message: isAdmin ? "Admin logged in successfully" : "User logged in successfully"
-      });
-    } else {
-      res.json({ success: false, message: "Invalid email or password" });
+    if (!isMatch) {
+      return res.json({ success: false, message: "Invalid email or password" });
     }
 
+    // Create token
+    const token = createToken(user._id);
+
+    // Check if admin
+    const isAdmin = user.role === "admin";
+
+    // Exclude password before sending user data
+    const { password: _, ...userWithoutPassword } = user.toObject();
+
+    res.json({
+      success: true,
+      token,
+      isAdmin,
+      user: userWithoutPassword,
+      message: isAdmin
+        ? "Admin logged in successfully"
+        : "User logged in successfully",
+    });
+
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message })
+    console.error(error);
+    res.json({ success: false, message: error.message });
   }
-}
+};
 
 
 //Route of user registration
@@ -89,29 +101,29 @@ const registerUser = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
-      // Since the user is already added to `req.user` by the authUser middleware,
-      // we can directly access it here.
-      const user = req.user;
+    // Since the user is already added to `req.user` by the authUser middleware,
+    // we can directly access it here.
+    const user = req.user;
 
-      // If there's no user, this means authentication failed, but `authUser` should have already handled it.
-      if (!user) {
-          return res.status(404).json({ success: false, message: 'User not found' });
-      }
+    // If there's no user, this means authentication failed, but `authUser` should have already handled it.
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
-      // Remove sensitive information like the password before sending the response
-      const { password, ...userData } = user.toObject();
+    // Remove sensitive information like the password before sending the response
+    const { password, ...userData } = user.toObject();
 
-      // Send the user data (without password)
-      res.status(200).json({
-          success: true,
-          user: userData, // Send user details without password
-      });
+    // Send the user data (without password)
+    res.status(200).json({
+      success: true,
+      user: userData, // Send user details without password
+    });
   } catch (err) {
-      console.error('Error retrieving current user:', err);
-      res.status(500).json({
-          success: false,
-          message: 'Server error while fetching user data',
-      });
+    console.error('Error retrieving current user:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching user data',
+    });
   }
 };
 

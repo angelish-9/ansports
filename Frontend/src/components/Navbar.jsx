@@ -16,6 +16,7 @@ const Navbar = () => {
     // Fetch token and user role from localStorage
     const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
+    const user = localStorage.getItem("user");
 
     if (token && role == "admin") {
       setIsAdmin(true);
@@ -49,6 +50,7 @@ const Navbar = () => {
                   onClick={() => {
                     localStorage.removeItem("token");
                     localStorage.removeItem("role");
+                    localStorage.removeItem("user");
                     setIsLoggedIn(false);
                     setIsAdmin(false);
                   }}

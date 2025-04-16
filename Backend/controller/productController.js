@@ -118,14 +118,13 @@ const categoryProduct = async (req, res) => {
     }
 }
 
-const rentableProducts = async (req, res) => {
+const getRandomProducts = async (req, res) => {
     try {
-        const products = await productModel.find({ canRent: true });  // Fetch products with canRent set to true
-        res.json({ products });
+        const products = await productModel.aggregate([{ $sample: { size: 3 } }]);
+        res.status(200).json({ success: true, products });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error fetching rental products.' });
+        res.status(500).json({ success: false, message: "Failed to fetch random products", error });
     }
 };
 
-export { addProduct, removeProduct, listProduct, singleProduct, categoryProduct, rentableProducts }
+export { addProduct, removeProduct, listProduct, singleProduct, categoryProduct, getRandomProducts}

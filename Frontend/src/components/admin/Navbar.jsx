@@ -8,6 +8,7 @@ const Navbar = ({ setToken }) => {
 
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("user");
 
     if (setToken) {
       setToken(null);

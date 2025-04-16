@@ -106,7 +106,7 @@ const AddProduct = () => {
   return (
     <>
       <Navbar />
-      <div className="flex min-h-screen mt-8">
+      <div className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 p-8 bg-gray-100">
           <h2 className="text-2xl font-semibold mb-4">Add New Product</h2>

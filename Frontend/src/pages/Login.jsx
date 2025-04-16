@@ -20,6 +20,10 @@ const Login = () => {
         console.log(res.data);
         toast.success("Login successful!");
         localStorage.setItem("token", res.data.token);
+        
+        const userDetailsArray = [res.data.user];
+        localStorage.setItem("user", JSON.stringify(userDetailsArray));
+
         if (res.data.isAdmin) {
           localStorage.setItem("role", 'admin');
         } else {

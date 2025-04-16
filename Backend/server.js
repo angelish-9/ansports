@@ -1,4 +1,3 @@
-// server.js
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -15,6 +14,7 @@ import productRouter from './routes/productRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 import messageRouter from './routes/messageRoute.js';
+import rentalRouter from './routes/rentalRoute.js';
 
 
 dotenv.config();
@@ -61,6 +61,7 @@ app.use('/api/product', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRouter);
 app.use('/api/message', messageRouter);
+app.use('/api/rental', rentalRouter);
 
 
 

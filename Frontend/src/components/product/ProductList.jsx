@@ -50,7 +50,7 @@ const ProductList = () => {
     return (
         <>
             {isAdmin ? <Navbar /> : <UserNavbar />}
-            <div className="flex min-h-screen mt-8">
+            <div className="flex min-h-screen">
             {isAdmin ? <Sidebar /> : null }
 
                 <div className="flex-1 p-8 bg-gray-100">
