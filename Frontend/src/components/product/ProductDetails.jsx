@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import io from 'socket.io-client';
 
 import Navbar from './../admin/Navbar';
 import UserNavbar from './../Navbar';
 
-const ProductDetails = () => {
+// Socket initialization (outside to keep global)
+const socket = io('http://localhost:5000', {
+  transports: ['websocket', 'polling'],
+  withCredentials: true,
+});
+
+const ProductDetails = (adminID) => {
     const { productId } = useParams();
     const navigate = useNavigate();
 
@@ -18,6 +25,8 @@ const ProductDetails = () => {
 
     const userRole = localStorage.getItem('role');
     const isAdmin = userRole === 'admin';
+
+    const sender = JSON.parse(localStorage.getItem('user'))[0]._id;
 
     const fetchProduct = async () => {
         try {
@@ -108,6 +117,22 @@ const ProductDetails = () => {
             console.error(err);
             alert('Rental failed');
         }
+    };
+
+    // New function to send the product details via message
+    const handleSendMessage = () => {
+        if (!product) return alert('Product not available');
+        
+        const message = {
+            senderId: sender,
+            receiverId: adminID.adminID,
+            message: `Product Name: ${product.name}, Price: $${product.price}, Description: ${product.description}`,
+            timestamp: new Date().toISOString(),
+        };
+
+        socket.emit('private-message', message);
+        alert('Message sent with product details');
+        navigate('/chat');
     };
 
     if (loading) return <div className="text-center text-xl text-gray-600">Loading...</div>;
@@ -225,6 +250,14 @@ const ProductDetails = () => {
                             className="w-full mt-4 bg-green-700 text-white py-3 rounded hover:bg-green-800 text-lg"
                         >
                             Add to Cart
+                        </button>
+
+                        {/* Send Product Details */}
+                        <button
+                            onClick={handleSendMessage}
+                            className="w-full mt-4 bg-blue-700 text-white py-3 rounded hover:bg-blue-800 text-lg"
+                        >
+                            Send Product Details
                         </button>
                     </div>
                 </div>

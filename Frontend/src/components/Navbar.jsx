@@ -39,6 +39,7 @@ const Navbar = () => {
           <li><Link to="/about" className="hover:text-pink-600">About Us</Link></li>
           <li><Link to="/contact" className="hover:text-pink-600">Contact</Link></li>
           <li><Link to="/cart" className="hover:text-pink-600">Cart</Link></li>
+          <li><Link to="/chat" className="hover:text-pink-600">Chat</Link></li>
           <li><Link to="/profile" className="hover:text-pink-600">Profile</Link></li>
           {!isLoggedIn ? (
             <li><Link to="/login" className="hover:text-pink-600">Login/Signup</Link></li>

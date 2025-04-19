@@ -35,8 +35,10 @@ const RentalStatus = lazy(() => import("./pages/admin/RentalStatus.jsx"));
 
 import Chat from './components/Chat';
 
-const currentUser = JSON.parse(localStorage.getItem('user'))[0];
-const adminId = currentUser?.role === 'admin' ? adminId : currentUser?._id || '';
+
+const adminId = '67f001c2c345695276466f83'
+
+
 
 function App() {
   return (
@@ -57,7 +59,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} /> */}
 
           <Route path="/product-list" element={<ProductList />} />
-          <Route path="/product/:productId" element={<ProductDetails />} />
+          <Route path="/product/:productId" element={<ProductDetails adminID={adminId} />} />
 
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/add-product" element={<AddProduct />} />
@@ -72,7 +74,7 @@ function App() {
 
           <Route path="/chat" element={<Chat receiver={adminId} />} />
 
-           <Route path="/admin/messages" element={<AdminMessages />} />
+          <Route path="/admin/messages" element={<AdminMessages />} />
 
           <Route path="/admin/rental-status" element={<RentalStatus />} />
 
