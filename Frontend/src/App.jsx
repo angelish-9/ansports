@@ -35,6 +35,8 @@ const RentalStatus = lazy(() => import("./pages/admin/RentalStatus.jsx"));
 
 import Chat from './components/Chat';
 
+const currentUser = JSON.parse(localStorage.getItem('user'))[0];
+const adminId = currentUser?.role === 'admin' ? adminId : currentUser?._id || '';
 
 function App() {
   return (
@@ -67,11 +69,8 @@ function App() {
           <Route path="/order-success" element={<SuccessPage />} />
           <Route path="/myorders" element={<MyOrdersPage />} />
           <Route path="/admin/orders" element={<AdminOrdersPage />} />
-          
 
-           {/* ✅ Chat route added properly */}
-           <Route path="/chat/:sender/:receiver" element={<Chat />} />
-
+          <Route path="/chat" element={<Chat receiver={adminId} />} />
 
            <Route path="/admin/messages" element={<AdminMessages />} />
 

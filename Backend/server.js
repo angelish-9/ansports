@@ -66,22 +66,22 @@ app.use('/api/rental', rentalRouter);
 
 
 
-// Fetch chat messages between two users
-app.get('/api/messages/:userId/:adminId', async (req, res) => {
-  const { userId, adminId } = req.params;
-  try {
-    const messages = await Message.find({
-      $or: [
-        { senderId: userId, receiverId: adminId },
-        { senderId: adminId, receiverId: userId }
-      ]
-    }).sort('timestamp');
-    res.json(messages);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch messages' });
-  }
-});
+// // Fetch chat messages between two users
+// app.get('/api/messages/:userId/:adminId', async (req, res) => {
+//   const { userId, adminId } = req.params;
+//   try {
+//     const messages = await Message.find({
+//       $or: [
+//         { senderId: userId, receiverId: adminId },
+//         { senderId: adminId, receiverId: userId }
+//       ]
+//     }).sort('timestamp');
+//     res.json(messages);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: 'Failed to fetch messages' });
+//   }
+// });
 
 
 // Socket.IO Logic
@@ -93,14 +93,19 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} joined room ${userId}`);
   });
 
-  socket.on('private-message', async (data) => {
-    const { senderId, receiverId, message } = data;
-    try {
-      const newMsg = await Message.create({ senderId, receiverId, message });
-      io.to(receiverId).emit('receive-message', newMsg);
-    } catch (err) {
-      console.error('❌ Failed to save message:', err);
-    }
+  socket.on('private-message', async (msgData) => {
+    // Save message to DB
+    const newMessage = new Message({
+      senderId: msgData.senderId,
+      receiverId: msgData.receiverId,
+      message: msgData.message,
+      timestamp: new Date(),
+    });
+
+    await newMessage.save();
+
+    // Emit to receiver's room
+    io.to(msgData.receiverId).emit('receive-message', newMessage);
   });
 
   socket.on('disconnect', () => {
