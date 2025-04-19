@@ -31,6 +31,9 @@ const AdminMessages = lazy(() => import("./pages/admin/AdminMessages.jsx"));
 
 const RentalStatus = lazy(() => import("./pages/admin/RentalStatus.jsx"));
 
+const AdminPromoCodes = lazy(() => import("./pages/admin/AdminPromoCodes.jsx"));
+
+
 // import MessagesPanel from './components/MessagesPanel';
 
 import Chat from './components/Chat';
@@ -77,6 +80,9 @@ function App() {
           <Route path="/admin/messages" element={<AdminMessages />} />
 
           <Route path="/admin/rental-status" element={<RentalStatus />} />
+
+          <Route path="/admin/promocodes" element={<AdminPromoCodes />} />
+
 
 
           {/* Fallback route */}

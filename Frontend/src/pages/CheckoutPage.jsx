@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import UserNavbar from './../components/Navbar';
+import PromoCodeForm from './../components/PromoCodeForm'; // 👈 Import it
 
 const CheckoutPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [total, setTotal] = useState(0);
+    const [discountedTotal, setDiscountedTotal] = useState(0); // 👈 For after promo
     const [address, setAddress] = useState('');
     const [phone, setPhone] = useState('');
 
@@ -19,6 +21,7 @@ const CheckoutPage = () => {
             setCartItems(items);
             const totalAmount = items.reduce((acc, item) => acc + item.productId.price * item.quantity, 0);
             setTotal(totalAmount);
+            setDiscountedTotal(totalAmount); // 👈 Initially same as total
         }).catch(err => {
             console.error("Failed to load cart", err);
         });
@@ -32,7 +35,7 @@ const CheckoutPage = () => {
 
         axios.post('http://localhost:5000/api/order/place', {
             items: cartItems,
-            total,
+            total: discountedTotal, // 👈 use discounted total
             address,
             phone,
         }, {
@@ -64,7 +67,11 @@ const CheckoutPage = () => {
 
                 <hr className="my-4" />
 
-                <p className="text-lg font-semibold mb-2">Total: ${total.toFixed(2)}</p>
+                <p className="text-md mb-1 text-gray-700">Original Total: ${total.toFixed(2)}</p>
+                <p className="text-lg font-semibold mb-2 text-green-700">Payable Total: ${discountedTotal.toFixed(2)}</p>
+
+                {/* Promo code section */}
+                <PromoCodeForm totalAmount={total} setDiscountedAmount={setDiscountedTotal} />
 
                 <input
                     type="text"

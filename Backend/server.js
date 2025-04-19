@@ -15,6 +15,7 @@ import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 import messageRouter from './routes/messageRoute.js';
 import rentalRouter from './routes/rentalRoute.js';
+import promocodeRouter from './routes/promocodeRoute.js';
 
 
 
@@ -63,25 +64,7 @@ app.use('/api/cart', cartRouter);
 app.use('/api/order', orderRouter);
 app.use('/api/message', messageRouter);
 app.use('/api/rental', rentalRouter);
-
-
-
-// // Fetch chat messages between two users
-// app.get('/api/messages/:userId/:adminId', async (req, res) => {
-//   const { userId, adminId } = req.params;
-//   try {
-//     const messages = await Message.find({
-//       $or: [
-//         { senderId: userId, receiverId: adminId },
-//         { senderId: adminId, receiverId: userId }
-//       ]
-//     }).sort('timestamp');
-//     res.json(messages);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: 'Failed to fetch messages' });
-//   }
-// });
+app.use('/api/promocode', promocodeRouter);
 
 
 // Socket.IO Logic
