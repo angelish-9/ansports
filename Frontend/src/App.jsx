@@ -22,6 +22,10 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
 const AddProduct = lazy(() => import("./pages/admin/AddProduct.jsx"));
 const CategoryProducts = lazy(() => import("./components/product/CategoryProducts.jsx"));
 const CartPage = lazy(() => import("./pages/CartPage.jsx"));
+import CheckoutPage from './pages/CheckoutPage';
+import SuccessPage from './pages/SuccessPage';
+import MyOrdersPage from './pages/MyOrdersPage.jsx';
+import AdminOrdersPage from "./pages/admin/AdminOrdersPage.jsx";
 
 const AdminMessages = lazy(() => import("./pages/admin/AdminMessages.jsx"));
 
@@ -59,6 +63,11 @@ function App() {
           <Route path="product/category/:category" element={<CategoryProducts />} />
 
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/order-success" element={<SuccessPage />} />
+          <Route path="/myorders" element={<MyOrdersPage />} />
+          <Route path="/admin/orders" element={<AdminOrdersPage />} />
+          
 
            {/* ✅ Chat route added properly */}
            <Route path="/chat/:sender/:receiver" element={<Chat />} />

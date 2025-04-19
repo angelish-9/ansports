@@ -26,7 +26,7 @@ const Sidebar = () => {
 
         <NavLink
           className="flex items-center gap-3 px-4 py-3 rounded-md transition-all hover:bg-pink-600 hover:text-white"
-          to="/orders"
+          to="/admin/orders"
         >
           <HiOutlineReceiptRefund size={25} />
           <p className="hidden md:block">Orders</p>
