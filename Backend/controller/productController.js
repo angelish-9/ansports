@@ -127,4 +127,64 @@ const getRandomProducts = async (req, res) => {
     }
 };
 
-export { addProduct, removeProduct, listProduct, singleProduct, categoryProduct, getRandomProducts}
+
+const editProduct = async (req, res) => {
+    try {
+        const { name, description, price, bestseller, sizes, category, canRent } = req.body;
+        const { productId } = req.params;
+
+        const existingProduct = await productModel.findById(productId);
+
+        if (!existingProduct) {
+            return res.status(404).json({ success: false, message: "Product not found." });
+        }
+
+        let imageUrl = existingProduct.image;
+
+        // Handle new image upload
+        if (req.file) {
+            const imageDirectory = path.join(process.cwd(), "uploads", "product-images");
+            if (!fs.existsSync(imageDirectory)) {
+                fs.mkdirSync(imageDirectory, { recursive: true });
+            }
+
+            const imageName = `${Date.now()}-${req.file.originalname}`;
+            const newImagePath = path.join(imageDirectory, imageName);
+            const newImageUrl = `/uploads/product-images/${imageName}`;
+
+            fs.copyFileSync(req.file.path, newImagePath);
+            fs.unlinkSync(req.file.path);
+
+            // Delete old images
+            if (Array.isArray(imageUrl)) {
+                imageUrl.forEach((imgPath) => {
+                    const fullOldPath = path.join(process.cwd(), imgPath);
+                    if (fs.existsSync(fullOldPath)) {
+                        fs.unlinkSync(fullOldPath);
+                    }
+                });
+            }
+
+            imageUrl = [newImageUrl];
+        }
+
+        // Update fields
+        existingProduct.name = name;
+        existingProduct.description = description;
+        existingProduct.price = Number(price);
+        existingProduct.sizes = Array.isArray(sizes) ? sizes : [sizes];
+        existingProduct.bestseller = bestseller === "true" || bestseller === true;
+        existingProduct.category = category || existingProduct.category;
+        existingProduct.canRent = canRent === "true" || canRent === true;
+        existingProduct.image = imageUrl;
+
+        await existingProduct.save();
+
+        res.json({ success: true, message: "Product updated successfully." });
+    } catch (error) {
+        console.error("Edit product error:", error);
+        res.status(500).json({ success: false, message: "Server error: " + error.message });
+    }
+};
+
+export { addProduct, removeProduct, listProduct, singleProduct, categoryProduct, getRandomProducts, editProduct }
